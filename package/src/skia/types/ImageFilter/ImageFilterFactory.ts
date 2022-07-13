@@ -44,7 +44,7 @@ export interface ImageFilterFactory {
     input: SkImageFilter | null
   ): SkImageFilter;
   /**
-   * Transforms a shader into an impage filter
+   * Transforms a shader into an image filter
    *
    * @param shader - The Shader to be transformed
    * @param input - if null, it will use the dynamic source image
