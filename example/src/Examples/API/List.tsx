@@ -74,6 +74,10 @@ const examples = [
     screen: "Reanimated",
     title: "🐎 Reanimated",
   },
+  {
+    screen: "Icons",
+    title: "🐣 Icons",
+  },
 ] as const;
 
 const styles = StyleSheet.create({
