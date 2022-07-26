@@ -3,7 +3,6 @@ import {
   Canvas,
   Fill,
   Group,
-  Skia,
   useClockValue,
   useComputedArrayValue,
   useComputedValue,

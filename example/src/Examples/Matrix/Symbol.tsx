@@ -38,12 +38,10 @@ export const Symbol = ({
   opacities,
   colors,
 }: SymbolProps) => {
-  const x = i * symbol.width;
-  const y = j * symbol.height;
   return (
     <Glyphs
-      x={x + symbol.width / 4}
-      y={y + symbol.height}
+      x={i * symbol.width}
+      y={j * symbol.height}
       font={font}
       glyphs={glyphs(i * j)}
       opacity={opacities(i * j)}
