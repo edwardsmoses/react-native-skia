@@ -87,7 +87,7 @@ export const Matrix = () => {
       items.map(({ stream, j }, index) => {
         const opacity =
           stream[(stream.length - j + jdxs.current[index]) % stream.length];
-        return Skia.Color(`rgba(0, 255, 70, ${opacity})`);
+        return new Float32Array([0, 1, 70 / 255, opacity]);
       }),
     [items, jdxs]
   );
