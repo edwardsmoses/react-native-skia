@@ -1,69 +1,53 @@
-import React, { useRef } from "react";
-import type { SkiaValue, SkFont } from "@shopify/react-native-skia";
-import {
-  useComputedValue,
-  interpolateColors,
-  vec,
-  Glyphs,
-} from "@shopify/react-native-skia";
-import { Platform } from "react-native";
+import React from "react";
+import type { SkFont, SkiaValue, SkPoint } from "@shopify/react-native-skia";
+import { Glyphs } from "@shopify/react-native-skia";
 
-export const COLS = Platform.OS === "web" ? 15 : 5;
-export const ROWS = Platform.OS === "web" ? 30 : 10;
-const pos = vec(0, 0);
+export const COLS = 15;
+export const ROWS = 30;
 
 interface SymbolProps {
   i: number;
   j: number;
-  timestamp: SkiaValue<number>;
-  stream: number[];
   font: SkFont;
-  symbols: number[];
   symbol: { width: number; height: number };
+  glyphs: (index: number) => {
+    index: number;
+    value: SkiaValue<
+      | {
+          id: number;
+          pos: SkPoint;
+        }[][]
+    >;
+  };
+  opacities: (index: number) => {
+    index: number;
+    value: SkiaValue<number[]>;
+  };
+  colors: (index: number) => {
+    index: number;
+    value: SkiaValue<Float32Array[]>;
+  };
 }
 
 export const Symbol = ({
   i,
   j,
-  timestamp,
-  stream,
   font,
-  symbols,
   symbol,
+  glyphs,
+  opacities,
+  colors,
 }: SymbolProps) => {
-  const offset = useRef(Math.round(Math.random() * (symbols.length - 1)));
-  const range = useRef(100 + Math.random() * 900);
   const x = i * symbol.width;
   const y = j * symbol.height;
-
-  const glyphs = useComputedValue(() => {
-    const idx = offset.current + Math.floor(timestamp.current / range.current);
-    return [{ id: symbols[idx % symbols.length], pos }];
-  }, [timestamp]);
-
-  const opacity = useComputedValue(() => {
-    const idx = Math.round(timestamp.current / 100);
-    return stream[(stream.length - j + idx) % stream.length];
-  }, [timestamp]);
-
-  const color = useComputedValue(
-    () =>
-      interpolateColors(
-        opacity.current,
-        [0.8, 1],
-        ["rgb(0, 255, 70)", "rgb(140, 255, 170)"]
-      ),
-    [opacity]
-  );
-
   return (
     <Glyphs
       x={x + symbol.width / 4}
       y={y + symbol.height}
       font={font}
-      glyphs={glyphs}
-      opacity={opacity}
-      color={color}
+      glyphs={glyphs(i * j)}
+      opacity={opacities(i * j)}
+      color={colors(i * j)}
     />
   );
 };
