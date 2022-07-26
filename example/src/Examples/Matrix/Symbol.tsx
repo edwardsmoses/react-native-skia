@@ -8,6 +8,7 @@ export const ROWS = 30;
 interface SymbolProps {
   i: number;
   j: number;
+  k: number;
   font: SkFont;
   symbol: { width: number; height: number };
   glyphs: (index: number) => {
@@ -32,6 +33,7 @@ interface SymbolProps {
 export const Symbol = ({
   i,
   j,
+  k,
   font,
   symbol,
   glyphs,
@@ -43,9 +45,9 @@ export const Symbol = ({
       x={i * symbol.width}
       y={j * symbol.height}
       font={font}
-      glyphs={glyphs(i * j)}
-      opacity={opacities(i * j)}
-      color={colors(i * j)}
+      glyphs={glyphs(k)}
+      opacity={opacities(k)}
+      color={colors(k)}
     />
   );
 };

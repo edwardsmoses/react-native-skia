@@ -76,28 +76,26 @@ export const Matrix = () => {
     [clock, symbols, items]
   );
 
-  const jdxs = useComputedValue(
-    () => items.map(() => Math.round(clock.current / 100)),
-    [clock, items]
-  );
 
   const colors = useComputedArrayValue(
     () =>
-      items.map(({ stream, j }, index) => {
+      items.map(({ stream, j }) => {
+        const index = Math.round(clock.current / 100);
         const opacity =
-          stream[(stream.length - j + jdxs.current[index]) % stream.length];
+          stream[(stream.length - j + index) % stream.length];
         return new Float32Array([0, 1, 70 / 255, opacity]);
       }),
-    [items, jdxs]
+    [items, clock]
   );
 
   const opacities = useComputedArrayValue(
-    () =>
-      items.map(
-        ({ stream, j }, index) =>
-          stream[(stream.length - j + jdxs.current[index]) % stream.length]
-      ),
-    [items, jdxs]
+    () => {
+      const index = Math.round(clock.current / 100);
+      return items.map(
+        ({ stream, j }) =>
+          stream[(stream.length - j + index) % stream.length]
+      ); },
+    [items, clock]
   );
 
   return symbols && font ? (
@@ -105,19 +103,18 @@ export const Matrix = () => {
       <Fill color="black" />
       <Group>
         <BlurMask blur={8} style="solid" />
-        {cols.map((_i, i) =>
-          rows.map((_j, j) => (
+        {items.map(({ i, j }, k) =>
             <Symbol
               font={font}
               key={`${i}-${j}`}
               i={i}
               j={j}
+              k={k}
               symbol={symbol}
               glyphs={glyphs}
               colors={colors}
               opacities={opacities}
             />
-          ))
         )}
       </Group>
     </Canvas>
