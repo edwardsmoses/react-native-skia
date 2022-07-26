@@ -30,7 +30,9 @@ public:
       _valueHolder(std::make_unique<JsiSimpleValueWrapper>(*platformContext->getJsRuntime()))
       { }
   
-  virtual ~RNSkReadonlyValue() { }
+  virtual ~RNSkReadonlyValue() {
+    invalidate();
+  }
 
   JSI_PROPERTY_GET(__typename__) {
     return jsi::String::createFromUtf8(runtime, "RNSkValue");
@@ -68,7 +70,15 @@ public:
     });
   }
   
-  JSI_EXPORT_FUNCTIONS(JSI_EXPORT_FUNC(RNSkReadonlyValue, addListener))
+  
+  
+  JSI_HOST_FUNCTION(__invalidate) {
+    invalidate();
+    return jsi::Value::undefined();
+  }
+  
+  JSI_EXPORT_FUNCTIONS(JSI_EXPORT_FUNC(RNSkReadonlyValue, addListener),
+                       JSI_EXPORT_FUNC(RNSkReadonlyValue, __invalidate))
     
   /**
   * Adds a callback that will be called whenever the value changes
@@ -79,12 +89,22 @@ public:
     std::lock_guard<std::mutex> lock(_mutex);
     auto listenerId = _listenerId++;
     _listeners.emplace(listenerId, cb);
+    
     return [weakSelf = weak_from_this(), listenerId]() {
       auto self = weakSelf.lock();
       if(self) {
         self->removeListener(listenerId);
       }
     };
+  }
+  
+  /**
+   Override to implement invalidation logic for the value. In the base class this function
+   clears all subscribers.
+   */
+  virtual void invalidate() {
+    std::lock_guard<std::mutex> lock(_mutex);
+    _listeners.clear();
   }
   
   /**

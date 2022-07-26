@@ -33,6 +33,11 @@ export class RNSkComputedValue<T> extends RNSkReadonlyValue<T> {
   private _unsubscribers: Array<() => void>;
 
   public unsubscribe() {
+    this._unsubscribers = [];
+  }
+
+  public __invalidate(): void {
     this._unsubscribers.forEach((unsubscribe) => unsubscribe());
+    this._unsubscribers = [];
   }
 }
