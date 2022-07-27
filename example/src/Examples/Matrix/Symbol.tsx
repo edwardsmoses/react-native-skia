@@ -1,53 +1,29 @@
 import React from "react";
-import type { SkFont, SkiaValue, SkPoint } from "@shopify/react-native-skia";
+import type {
+  AnimatedProp,
+  Color,
+  Glyph,
+  SkFont,
+} from "@shopify/react-native-skia";
 import { Glyphs } from "@shopify/react-native-skia";
-
-export const COLS = 15;
-export const ROWS = 30;
 
 interface SymbolProps {
   i: number;
   j: number;
-  k: number;
   font: SkFont;
   symbol: { width: number; height: number };
-  glyphs: (index: number) => {
-    index: number;
-    value: SkiaValue<
-      | {
-          id: number;
-          pos: SkPoint;
-        }[][]
-    >;
-  };
-  opacities: (index: number) => {
-    index: number;
-    value: SkiaValue<number[]>;
-  };
-  colors: (index: number) => {
-    index: number;
-    value: SkiaValue<Float32Array[]>;
-  };
+  glyphs: AnimatedProp<Glyph[]>;
+  color: AnimatedProp<Color>;
 }
 
-export const Symbol = ({
-  i,
-  j,
-  k,
-  font,
-  symbol,
-  glyphs,
-  opacities,
-  colors,
-}: SymbolProps) => {
+export const Symbol = ({ i, j, font, symbol, glyphs, color }: SymbolProps) => {
   return (
     <Glyphs
       x={i * symbol.width}
       y={j * symbol.height}
       font={font}
-      glyphs={glyphs(k)}
-      opacity={opacities(k)}
-      color={colors(k)}
+      glyphs={glyphs}
+      color={color}
     />
   );
 };

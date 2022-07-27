@@ -3,8 +3,8 @@ import {
   Canvas,
   Fill,
   Group,
+  Selector,
   useClockValue,
-  useComputedArrayValue,
   useComputedValue,
   useFont,
   vec,
@@ -12,7 +12,10 @@ import {
 import React, { useMemo } from "react";
 import { useWindowDimensions } from "react-native";
 
-import { COLS, ROWS, Symbol } from "./Symbol";
+const COLS = 15;
+const ROWS = 30;
+
+import { Symbol } from "./Symbol";
 
 const cols = new Array(COLS).fill(0).map((_, i) => i);
 const rows = new Array(ROWS).fill(0).map((_, i) => i);
@@ -65,37 +68,20 @@ export const Matrix = () => {
   );
 
   // Calculate the animated data
-  const glyphs = useComputedArrayValue(
+  const matrix = useComputedValue(
     () =>
       symbols
-        ? items.map(({ range, offset }) => {
+        ? items.map(({ stream, range, offset, j }) => {
             const idx = offset + Math.floor(clock.current / range);
-            return [{ id: symbols[idx % symbols.length], pos }];
+            const index = Math.round(clock.current / 100);
+            const opacity = stream[(stream.length - j + index) % stream.length];
+            return {
+              glyphs: [{ id: symbols[idx % symbols.length], pos }],
+              color: new Float32Array([0, 1, 70 / 255, opacity]),
+            };
           })
         : [],
     [clock, symbols, items]
-  );
-
-
-  const colors = useComputedArrayValue(
-    () =>
-      items.map(({ stream, j }) => {
-        const index = Math.round(clock.current / 100);
-        const opacity =
-          stream[(stream.length - j + index) % stream.length];
-        return new Float32Array([0, 1, 70 / 255, opacity]);
-      }),
-    [items, clock]
-  );
-
-  const opacities = useComputedArrayValue(
-    () => {
-      const index = Math.round(clock.current / 100);
-      return items.map(
-        ({ stream, j }) =>
-          stream[(stream.length - j + index) % stream.length]
-      ); },
-    [items, clock]
   );
 
   return symbols && font ? (
@@ -103,19 +89,17 @@ export const Matrix = () => {
       <Fill color="black" />
       <Group>
         <BlurMask blur={8} style="solid" />
-        {items.map(({ i, j }, k) =>
-            <Symbol
-              font={font}
-              key={`${i}-${j}`}
-              i={i}
-              j={j}
-              k={k}
-              symbol={symbol}
-              glyphs={glyphs}
-              colors={colors}
-              opacities={opacities}
-            />
-        )}
+        {items.map(({ i, j }, index) => (
+          <Symbol
+            font={font}
+            key={`${i}-${j}`}
+            i={i}
+            j={j}
+            symbol={symbol}
+            color={Selector(matrix, (g) => g[index].color)}
+            glyphs={Selector(matrix, (g) => g[index].glyphs)}
+          />
+        ))}
       </Group>
     </Canvas>
   ) : null;

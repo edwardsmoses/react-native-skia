@@ -9,7 +9,8 @@ import {
   Group,
   useTouchHandler,
   useValue,
-  useComputedArrayValue,
+  useComputedValue,
+  Selector,
 } from "@shopify/react-native-skia";
 import type { SkCanvas, DrawingInfo } from "@shopify/react-native-skia";
 import React, { useMemo, useCallback, useState, useRef } from "react";
@@ -75,7 +76,7 @@ export const PerformanceDrawingTest: React.FC = () => {
     [numberOfBoxes, width, SizeWidth, SizeHeight]
   );
 
-  const rotationTransforms = useComputedArrayValue(() => {
+  const rotationTransforms = useComputedValue(() => {
     return rects.map((rect) => {
       const p1 = { x: rect.x, y: rect.y };
       const p2 = currentTouch.current;
@@ -152,7 +153,11 @@ export const PerformanceDrawingTest: React.FC = () => {
             strokeWidth={2}
           />
           {rects.map((_, i) => (
-            <Group key={i} transform={rotationTransforms(i)} origin={rects[i]}>
+            <Group
+              key={i}
+              transform={Selector(rotationTransforms, (v) => v[i])}
+              origin={rects[i]}
+            >
               <Rect rect={rects[i]} paint={paint1Ref} />
               <Rect rect={rects[i]} paint={paint2Ref} />
             </Group>

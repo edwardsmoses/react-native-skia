@@ -1,4 +1,4 @@
-import type { SkiaValue } from "../../../values";
+import type { SelectorType, SkiaValue } from "../../../values";
 
 export const isValue = (value: unknown): value is SkiaValue<unknown> => {
   if (value === undefined || value === null) {
@@ -16,15 +16,18 @@ export const isValue = (value: unknown): value is SkiaValue<unknown> => {
   return false;
 };
 
-export const isIndexedAccess = (
+export const isSelector = <T, R>(
   value: unknown
-): value is { index: number; value: SkiaValue<Array<unknown>> } => {
+): value is {
+  selector: (v: T) => R;
+  value: SkiaValue<T>;
+} => {
   if (value) {
     return (
       typeof value === "object" &&
-      "index" in value &&
+      "selector" in value &&
       "value" in value &&
-      (value as Record<string, unknown>).index !== undefined &&
+      (value as Record<string, unknown>).selector !== undefined &&
       (value as Record<string, unknown>).value !== undefined
     );
   }
@@ -40,9 +43,8 @@ export const isAnimated = <T>(props: AnimatedProps<T>) => {
   return false;
 };
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type AnimatedProp<T, P = any> = T | SkiaValue<T> | SelectorType<T, P>;
 export type AnimatedProps<T> = {
-  [K in keyof T]:
-    | T[K]
-    | SkiaValue<T[K]>
-    | { index: number; value: SkiaValue<Array<T[K]>> };
+  [K in keyof T]: AnimatedProp<T[K]>;
 };
