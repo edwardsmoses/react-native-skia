@@ -133,32 +133,34 @@
   if (event.type == UIEventTypeTouches) {
     std::vector<RNSkia::RNSkTouchPoint> nextTouches;
     for (UITouch *touch in touches) {
-      auto position = [touch preciseLocationInView:self];
-      RNSkia::RNSkTouchPoint nextTouch;
-      nextTouch.x = position.x;
-      nextTouch.y = position.y;
-      nextTouch.force = [touch force];    
-      nextTouch.id = [touch hash];
-      auto phase = [touch phase];
-      switch(phase) {
-        case UITouchPhaseBegan:
-          nextTouch.type = RNSkia::RNSkTouchType::Start;
-          break;
-        case UITouchPhaseMoved:
-          nextTouch.type = RNSkia::RNSkTouchType::Active;
-          break;
-        case UITouchPhaseEnded:
-          nextTouch.type = RNSkia::RNSkTouchType::End;
-          break;
-        case UITouchPhaseCancelled:
-          nextTouch.type = RNSkia::RNSkTouchType::Cancelled;
-          break;
-        default:
-          nextTouch.type = RNSkia::RNSkTouchType::Active;
-          break;
-      }
-      
-      nextTouches.push_back(nextTouch);
+        if(touch.type == UITouchTypePencil){
+            auto position = [touch preciseLocationInView:self];
+            RNSkia::RNSkTouchPoint nextTouch;
+            nextTouch.x = position.x;
+            nextTouch.y = position.y;
+            nextTouch.force = [touch force];
+            nextTouch.id = [touch hash];
+            auto phase = [touch phase];
+            switch(phase) {
+              case UITouchPhaseBegan:
+                nextTouch.type = RNSkia::RNSkTouchType::Start;
+                break;
+              case UITouchPhaseMoved:
+                nextTouch.type = RNSkia::RNSkTouchType::Active;
+                break;
+              case UITouchPhaseEnded:
+                nextTouch.type = RNSkia::RNSkTouchType::End;
+                break;
+              case UITouchPhaseCancelled:
+                nextTouch.type = RNSkia::RNSkTouchType::Cancelled;
+                break;
+              default:
+                nextTouch.type = RNSkia::RNSkTouchType::Active;
+                break;
+            }
+            
+            nextTouches.push_back(nextTouch);
+        }
     }
     if(_impl != nullptr) {
       _impl->updateTouchState(std::move(nextTouches));
